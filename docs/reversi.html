@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>reversi.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>reversi.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <h2>Universidade de São Paulo</h2>
+<h2>Instituto de Física de São Carlos</h2>
+<h2><em>Programação Paralela</em></h2>
+<h3>Prof. Gonzalo Travieso</h3>
+<h4>Aluno Vilson Vieira</h4>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <h1>Implementação do Jogo Reversi</h1>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <p>Segue a listagem de código (ao lado direito) acompanhado da
+documentação (ao lado esquerdo, nessas linhas seguintes) do jogo de
+tabuleiro <em>Reversi</em> em linguagem <em>Python</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <h2>Instalação e uso</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>Para instalar e executar, basta possuir um interpretador
+<em>Python</em>. Aqui utilizamos a versão <em>2.7</em>.</p>
+<p>O uso deste <em>script</em> se dá através da chamada à função <em>joga(n)</em>,
+onde <em>n</em> é o nível máximo que o algoritmo <em>minimax</em> deverá
+avaliar. Para facilitar, fizemos a chamada dessa função ao final
+desse <em>script</em> para <em>n = 3</em>.</p>
+<p>Portanto, para realizar um jogo, basta executar, em linha de
+comando, a seguinte chamada:</p>
+<pre><code>$ python reversi.py &gt; jogadas.txt
+</code></pre>
+<p>Todas as jogadas estarão no arquivo jogadas.txt</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <h2>Bibliotecas necessárias</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>Usada para a função <em>copy.deepcopy()</em>, que permite a cópia de
+estruturas de dados como matrizes, usada na representação do
+tabuleiro.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">copy</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <h2>Constantes e inicialização</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>O caractere (e inteiro) 0 é utilizado para representar as peças
+pretas.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">PRETO</span> <span class="o">=</span> <span class="s">&#39;0&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <p>O caractere 1 para as brancas.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">BRANCO</span> <span class="o">=</span> <span class="s">&#39;1&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      <p>O traço para posições vazias do tabuleiro.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">VAZIO</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <p>O asterísco para as bordas (desta forma, temos uma matriz de 10x10
+posições).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">BORDA</span> <span class="o">=</span> <span class="s">&#39;*&#39;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
+      </div>
+      <p>Portanto, considerando uma representação simples baseada em uma
+lista de listas de caracteres, o tabuleiro é representado da
+seguinte forma:</p>
+<pre><code>* * * * * * * * * *
+* - - - - - - - - *
+* - - - - - - - - *
+* - - - - - - - - *
+* - - - 1 0 - - - *
+* - - - 0 1 - - - *
+* - - - - - - - - *
+* - - - - - - - - *
+* - - - - - - - - *
+* * * * * * * * * *
+</code></pre>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-14'>#</a>
+      </div>
+      <p>Uma lista das direções possíveis que um 'traçado' pode
+assumir. Definimos como 'traçado' uma linha entre a peça atual e a
+próxima peça de mesma cor, passando por uma ou mais peças
+adversárias. Inverter (reversi!) as peças adversárias que fazem
+parte desse 'traçado' é o objetivo do jogo.  Portanto, aqui temos
+todas as 8 direções possíveis que a peça poderá 'caminhar' para
+tentar formar o 'traçado'.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">DIRS</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>          <span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-15'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-15'>#</a>
+      </div>
+      <p>Cria um tabuleiro inicial, com as primeiras peças no centro.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">novo_tabuleiro</span><span class="p">():</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-16'>#</a>
+      </div>
+      <p>Usamos a função <em>str.split()</em> para separar cada caractere da
+string, formando uma lista de listas de caracteres (para
+permitir edição posterior).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;* * * * * * * * * *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - - - - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - - - - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - - - - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - 1 0 - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - 0 1 - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - - - - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - - - - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* - - - - - - - - *&quot;</span><span class="p">,</span>
+                           <span class="s">&quot;* * * * * * * * * *&quot;</span><span class="p">])</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-17'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-17'>#</a>
+      </div>
+      <h2>Função principal</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-18'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-18'>#</a>
+      </div>
+      <p>Função principal que executa todos os turnos de um jogo,
+terminando quando não há mais possibilidade de movimento para os
+jogadores.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">joga</span><span class="p">(</span><span class="n">nivel</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-19'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-19'>#</a>
+      </div>
+      <p>Iniciamos um novo tabuleiro.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">tabuleiro</span> <span class="o">=</span> <span class="n">novo_tabuleiro</span><span class="p">()</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-20'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-20'>#</a>
+      </div>
+      <p>Contamos as jogadas nesta variável.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">qtd_jogadas</span> <span class="o">=</span> <span class="mi">0</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-21'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-21'>#</a>
+      </div>
+      <p>O Reversi começa sempre pelas peças pretas.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">jogador</span> <span class="o">=</span> <span class="n">PRETO</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-22'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-22'>#</a>
+      </div>
+      <p>Executa os turnos enquanto for possível. Esse é o <em>loop</em>
+principal deste <em>script</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-23'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-23'>#</a>
+      </div>
+      <p>Planeja uma jogada (aqui será chamado o procedimento
+<em>minimax</em>).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">ganho</span><span class="p">,</span> <span class="n">jogada</span> <span class="o">=</span> <span class="n">planeja</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">nivel</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-24'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-24'>#</a>
+      </div>
+      <p>Executa a jogada.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">executa</span><span class="p">(</span><span class="n">jogada</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-25'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-25'>#</a>
+      </div>
+      <p>Mostra na tela o estado do tabuleiro atual</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">mostra</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">qtd_jogadas</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-26'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-26'>#</a>
+      </div>
+      <p>Troca de jogador (ou continua no mesmo se o outro passar a
+vez).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">jogador</span> <span class="o">=</span> <span class="n">proximo</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-27'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-27'>#</a>
+      </div>
+      <p>Verifica se o jogo terminou. <em>None</em> é usado como um
+marcador, retornado pela função <em>proximo()</em> para sinalizar
+que não há mais movimentos possíveis e, portanto, fim de
+jogo.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="k">if</span> <span class="n">jogador</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-28'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-28'>#</a>
+      </div>
+      <p>Verifica quem ganhou.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>            <span class="n">dif_preto</span> <span class="o">=</span> <span class="n">pontos</span><span class="p">(</span><span class="n">PRETO</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span>
+            <span class="n">dif_branco</span> <span class="o">=</span> <span class="n">pontos</span><span class="p">(</span><span class="n">BRANCO</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="s">&quot;Houve EMPATE.&quot;</span>
+            <span class="k">if</span> <span class="n">dif_preto</span> <span class="o">&gt;</span> <span class="n">dif_branco</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="s">&#39;Jogador PRETO ganhou com </span><span class="si">%s</span><span class="s"> peÃ§as a mais.&#39;</span> <span class="o">%</span> <span class="n">dif_preto</span>
+            <span class="k">elif</span> <span class="n">dif_branco</span> <span class="o">&gt;</span> <span class="n">dif_preto</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="s">&#39;Jogador BRANCO ganhou com </span><span class="si">%s</span><span class="s"> peÃ§as a mais.&#39;</span> <span class="o">%</span> <span class="n">dif_branco</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-29'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-29'>#</a>
+      </div>
+      <p>Mostra o resultado final do jogo.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>            <span class="k">print</span> <span class="s">&quot;O jogo terminou apÃ³s </span><span class="si">%s</span><span class="s"> jogadas! </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">qtd_jogadas</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+            <span class="k">break</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-30'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-30'>#</a>
+      </div>
+      <p>Apenas atualizamos o contador de jogadas.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="n">qtd_jogadas</span> <span class="o">+=</span> <span class="mi">1</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-31'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-31'>#</a>
+      </div>
+      <h2>Planejamento</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-32'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-32'>#</a>
+      </div>
+      <p>Nesta seção, a heurística <em>minimax</em> é utilizada para planejar uma
+jogada 'melhor possível' para um determinado jogador.</p>
+<p>O teorema <em>minimax</em> é bastante interessante quando tratamos de jogos
+baseados em turnos. De forma bastante prática, o que ela sugere é:
+<em>o melhor para o jogador atual é minimizar a sua perda</em>. Posto de
+outra maneira, o <em>jogador atual deverá escolher qual jogada sua
+levará a um estado onde perderá menos peças</em>.</p>
+<p>Por exemplo, digamos que é a vez do jogador PRETO. O algoritmo
+<em>minimax</em> irá avaliar todas as possíveis jogadas (até o nível máximo
+especificado) do oponente. Para permitir essa avaliação, contaremos
+a diferença de peças entre os jogadores. Digamos que essa diferença,
+para um determinado nível, seja equivalente a <em>[2, 1, 3]</em>. Ou seja,
+se a jogada 1 for escolhida, o oponente terá ganho 2 peças, se a
+jogada 2 for escolhida, o oponente ganhará 1 peça, o mesmo para a
+terceira escolha, onde ele ganhará 3 peças. Para o jogador PRETO é
+melhor escolher o valor mínimo, ou, invertendo os sinais: <em>max([-2,
+-1, -3]) = -1</em>. Dessa forma, a segunda opção de jogada é a melhor
+para o jogador PRETO.</p>
+<p>A função <em>minimax()</em> implementa esse algoritmo descrito acima. A
+implementação foi baseada <a href="http://en.wikipedia.org/wiki/Minimax">neste
+pseudo-código</a> disponível na
+Wikipedia.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-33'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-33'>#</a>
+      </div>
+      <p>Função auxiliar, que chama a função recursiva <em>minimax()</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">planeja</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">nivel</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-34'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-34'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="n">minimax</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">),</span> <span class="n">nivel</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-35'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-35'>#</a>
+      </div>
+      <p>Planeja a próxima jogada de determinado jogador através do
+algoritmo <em>minimax</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">minimax</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">nivel</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-36'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-36'>#</a>
+      </div>
+      <p>Critério de parada: se o nível for zero, retorna a diferença de
+peças que o jogador possui com o oponente no tabuleiro.  Note
+que o retorno dessa função é sempre o ganho da jogada e a jogada
+em si (sua posição no tabuleiro).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="n">nivel</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">pontos</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-37'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-37'>#</a>
+      </div>
+      <p>Vamos executar e analisar todas as jogadas possíveis desse
+nível. Portanto, encontramos todas as posições possíveis de
+jogada.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">jogaveis</span> <span class="o">=</span> <span class="n">pos_jogaveis</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-38'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-38'>#</a>
+      </div>
+      <p>Se não existem jogadas possíveis ou o jogo terminou ou passamos
+a vez (chamamos minimax para o oponente)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="n">jogaveis</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="n">oponente</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">pos_valida</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">oponente</span><span class="p">),</span> <span class="n">tabuleiro</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_validas</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-39'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-39'>#</a>
+      </div>
+      <p>Não existem mais posições válidas, o jogo terminou,
+então o ganho será o máximo ou o mínimo possível para o
+jogador (forçamos isso com um valor muito grande), ou 0
+caso não há diferença nos pontos.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>            <span class="n">ganho</span> <span class="o">=</span> <span class="n">pontos</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ganho</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="mi">999999</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ganho</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="mi">999999</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-40'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-40'>#</a>
+      </div>
+      <p>Caso contrário, passamos a vez para o oponente, chamando
+minimax para ele.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">minimax</span><span class="p">(</span><span class="nb">str</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">),</span>
+                         <span class="n">tabuleiro</span><span class="p">,</span>
+                         <span class="n">nivel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-41'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-41'>#</a>
+      </div>
+      <p>Escolhemos o melhor valor possível das jogadas, ou seja, o
+melhor para o jogador é o menor ganho do oponente, como
+discutido acima. É aqui que é feita a chamada recursiva, sempre
+invertendo os sinais dos valores dos tabuleiros e o jogador.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">ganhos</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="n">minimax</span><span class="p">(</span><span class="nb">str</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">),</span>
+                        <span class="n">executa</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)),</span>
+                        <span class="n">nivel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+               <span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">jogaveis</span><span class="p">]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-42'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-42'>#</a>
+      </div>
+      <p>Retornamos o melhor valor possível de todas as jogadas do nível
+atual até 0.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">ganhos</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-43'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-43'>#</a>
+      </div>
+      <p>Calcula a pontuação do jogador baseando-se em seu total de peças
+menos as peças do oponente.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">pontos</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-44'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-44'>#</a>
+      </div>
+      <p>Encontramos a quantidade de peças do jogador e seu oponente,
+armazenando nessas variáveis.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">pontos_jogador</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">pontos_oponente</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">oponente</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-45'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-45'>#</a>
+      </div>
+      <p>Percorremos todas as posições válidas do tabuleiro e somamos 1
+quando encontramos uma peça do jogador ou do oponente (0 ou 1).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_validas</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">):</span>
+        <span class="n">peca</span> <span class="o">=</span> <span class="n">tabuleiro</span><span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">peca</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">jogador</span><span class="p">):</span>
+            <span class="n">pontos_jogador</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">peca</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">oponente</span><span class="p">):</span>
+            <span class="n">pontos_oponente</span> <span class="o">+=</span> <span class="mi">1</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-46'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-46'>#</a>
+      </div>
+      <p>Retornamos a diferença de peças entre os jogadores.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="n">pontos_jogador</span> <span class="o">-</span> <span class="n">pontos_oponente</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-47'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-47'>#</a>
+      </div>
+      <h2>Procura de jogadas válidas</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-48'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-48'>#</a>
+      </div>
+      <p>Nessa seção temos várias funções necessárias para encontrarmos e
+validarmos posições do tabuleiro. Juntamente com as funções de
+execução de jogadas da próxima seção, elas modelam a <em>dinâmica do
+jogo</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-49'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-49'>#</a>
+      </div>
+      <p>Retorna as casas válidas do tabuleiro (sem as bordas).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">pos_validas</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-50'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-50'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-51'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-51'>#</a>
+      </div>
+      <p>Percorremos todo o tabuleiro e consideramos apenas as posições
+que tenham peças ou que sejam vazias. Desconsideramos assim as
+bordas.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">tabuleiro</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VAZIO</span><span class="p">,</span> <span class="n">PRETO</span><span class="p">,</span> <span class="n">BRANCO</span><span class="p">]:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">v</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-52'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-52'>#</a>
+      </div>
+      <p>Retorna as posições 'jogáveis'.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">pos_jogaveis</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-53'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-53'>#</a>
+      </div>
+      <p>Para uma posição ser válida, ela precisa não ser borda e
+corresponder a uma posição onde podemos fazer um
+'traçado'. Portanto, percorremos todas as posições válidas
+(selecionadas pela função acima descrita) e procuraremos a
+partir de cada uma dessas posições, uma posição em que possamos
+jogar uma peça.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="p">[</span><span class="n">pos</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_validas</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos_valida</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-54'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-54'>#</a>
+      </div>
+      <p>Testa se a posição é válida ou não. O jogador só pode jogar em uma
+posição que forme um traçado válido!</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">pos_valida</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-55'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-55'>#</a>
+      </div>
+      <p>Função auxiliar que tenta encontrar uma posição para jogar em
+determinada direção.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">def</span> <span class="nf">busca</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pos_jogavel</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-56'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-56'>#</a>
+      </div>
+      <p>Para cada direção a partir da posição atual, procuramos uma
+posição para jogar que forme um 'traçado'. Somente podemos jogar
+nessa posição se ela estiver vazia, portanto, também fazemos
+essa checagem.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="n">tabuleiro</span><span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">==</span> <span class="n">VAZIO</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">busca</span><span class="p">,</span> <span class="n">DIRS</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">False</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-57'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-57'>#</a>
+      </div>
+      <p>Retorna uma posição onde podemos jogar a peça (há um traçado até
+ela) ou <em>None</em> caso contrário.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">pos_jogavel</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">direcao</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-58'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-58'>#</a>
+      </div>
+      <p>Começamos pelo vizinho do canto superior esquerdo.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">jogavel</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-59'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-59'>#</a>
+      </div>
+      <p>Se a próxima posição a partir da atual é uma de nossas peças,
+ela não é uma posição válida para jogarmos. Apenas posições
+vizinhas que tenham uma peça oponente nos interessam.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="n">tabuleiro</span><span class="p">[</span><span class="n">jogavel</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">jogavel</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">==</span> <span class="n">jogador</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-60'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-60'>#</a>
+      </div>
+      <p>Cálculo simples para sabermos quem é nosso oponente (utilizamos
+esse cálculo várias vezes no código).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">oponente</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-61'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-61'>#</a>
+      </div>
+      <p>Vamos seguindo as posições onde há oponentes, a última delas é a
+válida!</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">while</span> <span class="n">tabuleiro</span><span class="p">[</span><span class="n">jogavel</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">jogavel</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">oponente</span><span class="p">):</span>
+        <span class="n">jogavel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">jogavel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-62'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-62'>#</a>
+      </div>
+      <p>Encontramos a posição válida em <em>jogavel</em>! Porém, se essa
+posição for uma borda, não poderemos jogar.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="n">tabuleiro</span><span class="p">[</span><span class="n">jogavel</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">jogavel</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">BORDA</span><span class="p">,</span> <span class="n">VAZIO</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jogavel</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-63'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-63'>#</a>
+      </div>
+      <h2>Execução de jogadas</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-64'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-64'>#</a>
+      </div>
+      <p>Cada vez que o jogador executa uma jogada, devemos atualizar o
+tabuleiro considerando essa nova jogada e ao mesmo tempo, inverter
+todas as peças adversárias que fazem parte do 'traçado'. Nessa seção
+descrevemos as duas funções responsáveis por isso: <em>executa()</em> e
+<em>inverte()</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-65'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-65'>#</a>
+      </div>
+      <p>Executa a jogada na posição especificada.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">executa</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-66'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-66'>#</a>
+      </div>
+      <p>Colocamos a peça da jogada atual no tabuleiro.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">tabuleiro</span><span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">jogador</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-67'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-67'>#</a>
+      </div>
+      <p>Atualizamos todas as direções possíveis a partir dessa peça,
+virando as peças adversárias.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="n">direcao</span> <span class="ow">in</span> <span class="n">DIRS</span><span class="p">:</span>
+        <span class="n">inverte</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">direcao</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-68'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-68'>#</a>
+      </div>
+      <p>Retornamos o tabuleiro atualizado (é importante notar que
+nenhuma das funções -- a não ser a <em>inverte()</em>, que é uma função
+apenas chamada por <em>executa</em> -- têm <em>side-effects</em>, ou seja, os
+estados passados por parâmetro não são alterados. Pensamos assim
+para facilitar paralelismo em seguida (talvez aplicando dividir
+para conquistar?).</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="n">tabuleiro</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-69'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-69'>#</a>
+      </div>
+      <p>Inverte todas as peças adversárias em um determinada direção.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">inverte</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">direcao</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-70'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-70'>#</a>
+      </div>
+      <p>Usamos a mesma função que utilizamos anteriormente para
+encontrar uma posição jogável, mas agora a usamos para encontrar
+o final do 'traçado'.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">pos_final</span> <span class="o">=</span> <span class="n">pos_jogavel</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">,</span> <span class="n">direcao</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-71'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-71'>#</a>
+      </div>
+      <p>Se não existe uma posição, simplesmente retornamos sem fazer
+nada.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="ow">not</span> <span class="n">pos_final</span><span class="p">:</span>
+        <span class="k">return</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-72'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-72'>#</a>
+      </div>
+      <p>Vamos percorrer todas as peças do traçado, tornando-as todas
+nossas.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">pos_tracado</span> <span class="o">=</span> <span class="p">[</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">while</span> <span class="n">pos_tracado</span> <span class="o">!=</span> <span class="n">pos_final</span><span class="p">:</span>
+        <span class="n">tabuleiro</span><span class="p">[</span><span class="n">pos_tracado</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pos_tracado</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">jogador</span>
+        <span class="n">pos_tracado</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pos_tracado</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">direcao</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-73'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-73'>#</a>
+      </div>
+      <h2>Critério de parada</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-74'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-74'>#</a>
+      </div>
+      <p>Testa se o jogo terminou. O jogo termina quando nenhum jogador
+mais puder se mover. Se houver um jogador livre para jogar, ele
+irá jogar, caso contrário, retorna None sinalizando que o jogo
+terminou.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">proximo</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-75'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-75'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">oponente</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-76'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-76'>#</a>
+      </div>
+      <p>Se o oponente pode se mover, ele joga.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">pos_valida</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">oponente</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span>
+           <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_validas</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">oponente</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-77'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-77'>#</a>
+      </div>
+      <p>Senão, o jogador atual joga (o oponente passou a vez pois está
+'preso').</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">pos_valida</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">jogador</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_validas</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">jogador</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-78'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-78'>#</a>
+      </div>
+      <p>Caso contrário, todos os jogadores estarão 'presos' e o jogo
+então termina. Sinalizamos, como já comentado, através de
+<em>None</em>.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="bp">None</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-79'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-79'>#</a>
+      </div>
+      <h2>Funções Auxiliares</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-80'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-80'>#</a>
+      </div>
+      <p>Mostra na tela o número do turno atual, o jogador e sua jogada,
+formatadas de uma maneira 'amigável'.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">mostra</span><span class="p">(</span><span class="n">jogador</span><span class="p">,</span> <span class="n">qtd_jogadas</span><span class="p">,</span> <span class="n">tabuleiro</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-81'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-81'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">linha</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tabuleiro</span><span class="p">[</span><span class="n">linha</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">])</span>
+        
+    <span class="n">cor</span> <span class="o">=</span> <span class="s">&#39;PRETO&#39;</span>
+    <span class="k">if</span> <span class="n">jogador</span> <span class="ow">is</span> <span class="s">&#39;1&#39;</span><span class="p">:</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="s">&#39;BRANCO&#39;</span>
+        
+    <span class="k">print</span> <span class="s">&quot;#</span><span class="si">%s</span><span class="s"> Jogador: </span><span class="si">%s</span><span class="s">. Jogada:</span><span class="se">\n\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">qtd_jogadas</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-82'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-82'>#</a>
+      </div>
+      <p>Fazemos uma chamada padrão à função joga, como exemplo. </p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">joga</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

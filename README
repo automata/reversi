@@ -1,0 +1,12 @@
+Implementação do jogo de tabuleiro Reversi.
+
+Para executar:
+
+python reversi.py > jogadas.txt
+
+O arquivo jogadas.txt conterá todo o histórico de jogadas realizadas.
+
+No diretório docs/ há o código comentado da implementação.
+
+--
+2012 ~ Vilson Vieira <vilson@void.cc>
