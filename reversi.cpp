@@ -284,7 +284,7 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
   // Encontramos o maior (máximo).
   GanhoPos maior;
   maior.ganho = -9999;
-  for (int i=0; i<ganhos.size(); i++) {
+  for (int i=ganhos.size()-1; i>=0; i--) {
     if (ganhos.at(i).ganho > maior.ganho) {
       maior.ganho = ganhos.at(i).ganho;
       maior.pos = ganhos.at(i).pos;
