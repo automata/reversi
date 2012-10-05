@@ -32,7 +32,7 @@ real	0m0.596s
 user	0m0.544s
 sys	0m0.052s
 
-É notável, Python leva 5 minutos enquanto C++ 0.5 segundos!
+É notável, Python leva 5.5 segundos enquanto C++ 0.6 segundos!
 
 --
 2012 ~ Vilson Vieira <vilson@void.cc>
