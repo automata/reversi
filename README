@@ -1,12 +1,38 @@
-Implementação do jogo de tabuleiro Reversi.
+Implementação do jogo de tabuleiro Reversi em Python e C++.
 
-Para executar:
+Para executar (em Python):
 
-python reversi.py > jogadas.txt
+    python reversi.py > jogadas.txt
+
+E em C++:
+
+    g++ -o reversi reversi.cpp
+    ./reversi > jogadas.txt
 
 O arquivo jogadas.txt conterá todo o histórico de jogadas realizadas.
 
-No diretório docs/ há o código comentado da implementação.
+No diretório docs/ há o código comentado da implementação em Python e o código
+em C++ está também comentado, a exemplo do código em Python.
+
+Interessante notar que o código em Python foi desenvolvido antes do de C++.
+Portanto, ambos revelam características interessantes sobre a tradução de
+Python para C++.
+
+A velocidade de execução de ambos programas também foi analisado.
+
+Para minimax com nível = 3 tivemos os seguintes resultados:
+
+Em Python:
+real	0m5.668s
+user	0m5.636s
+sys	0m0.020s
+
+Em C++:
+real	0m0.596s
+user	0m0.544s
+sys	0m0.052s
+
+É notável, Python leva 5 minutos enquanto C++ 0.5 segundos!
 
 --
 2012 ~ Vilson Vieira <vilson@void.cc>

@@ -6,7 +6,7 @@
 #### Prof. Gonzalo Travieso
 ##### Aluno Vilson Vieira
 
-## Implementação do Jogo Reversi
+## Implementação do Jogo Reversi (em Python)
 
 # Segue a listagem de código (ao lado direito) acompanhado da
 # documentação (ao lado esquerdo, nessas linhas seguintes) do jogo de
@@ -211,10 +211,10 @@ def minimax(jogador, tabuleiro, nivel):
             elif ganho > 0:
                 return (999999, None)
             else:
-                return (d, None)
+                return (ganho, None)
         # Caso contrário, passamos a vez para o oponente, chamando
         # minimax para ele.
-        return (-minimax(str((int(jogador) + 1) % 2),
+        return (-minimax(str(oponente),
                          tabuleiro,
                          nivel - 1)[0], None)
 
