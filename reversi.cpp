@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -89,52 +90,70 @@ struct GanhoPos {
 
 // Poderia ter incluído em um header, mas preferi deixar todo o código
 // em um só arquivo.
-void joga(int nivel);
-void mostra(char jogador, int qtd_jogadas, string tabuleiro[]);
-Posicao *planeja(char jogador, string tabuleiro[], int nivel);
-GanhoPos minimax(char jogador, string tabuleiro[], int nivel);
-int pontos(char jogador, string tabuleiro[]);
-vector<Posicao *> pos_validas(string tabuleiro[]);
-vector<Posicao *> pos_jogaveis(char jogador, string tabuleiro[]);
-bool pos_valida(Posicao *pos, char jogador, string tabuleiro[]);
-Posicao *pos_jogavel(Posicao *pos, char jogador, string tabuleiro[], int d[]);
-string *executa(Posicao *pos, char jogador, string *tabuleiro);
-void inverte(Posicao *pos, char jogador, string tabuleiro[], int d[]);
-char proximo(char jogador, string tabuleiro[]);
+void joga(int nivel, int tam_tabuleiro);
+void mostra(char jogador, Posicao *jda, int qtd_jogadas, string **tabuleiro);
+Posicao *planeja(char jogador, string **tabuleiro, int nivel);
+GanhoPos minimax(char jogador, string **tabuleiro, int nivel);
+int pontos(char jogador, string **tabuleiro);
+vector<Posicao *> pos_validas(string **tabuleiro);
+vector<Posicao *> pos_jogaveis(char jogador, string **tabuleiro);
+bool pos_valida(Posicao *pos, char jogador, string **tabuleiro);
+Posicao *pos_jogavel(Posicao *pos, char jogador, string **tabuleiro, int d[]);
+string **executa(Posicao *pos, char jogador, string **tabuleiro);
+void inverte(Posicao *pos, char jogador, string **tabuleiro, int d[]);
+char proximo(char jogador, string **tabuleiro);
 
 //// Função principal /////////////////////////////////////////////////////////
 
 // Função principal que executa todos os turnos de um jogo, terminando
 // quando não há mais possibilidade de movimento para os jogadores.
-void joga(int nivel) {
-  // Iniciamos um novo tabuleiro.
-  string tabuleiro[] = {"**********",
-                        "*--------*",
-                        "*--------*",
-                        "*--------*",
-                        "*---10---*",
-                        "*---01---*",
-                        "*--------*",
-                        "*--------*",
-                        "*--------*",
-                        "**********"};
+void joga(int nivel, int tam_tabuleiro) {
+  // Iniciamos um novo tabuleiro de qualquer tamanho.
+  string **tabuleiro = new string*[tam_tabuleiro+2];
+
+  for (int i=0; i<tam_tabuleiro+2; i++) {
+    tabuleiro[i] = new string[tam_tabuleiro+2];
+    string foo (tam_tabuleiro+2, VAZIO);
+    *tabuleiro[i] = foo;
+  }
+
+  (*tabuleiro[tam_tabuleiro/2])[tam_tabuleiro/2] = BRANCO;
+  (*tabuleiro[tam_tabuleiro/2+1])[tam_tabuleiro/2+1] = BRANCO;
+  (*tabuleiro[tam_tabuleiro/2+1])[tam_tabuleiro/2] = PRETO;
+  (*tabuleiro[tam_tabuleiro/2])[tam_tabuleiro/2+1] = PRETO;
+
+  for (int i=0; i<tam_tabuleiro+2; i++) {
+    for (int j=0; j<tam_tabuleiro+2; j++) {
+      if ((i==0) || (i==tam_tabuleiro+1)) {
+        (*tabuleiro[i])[j] = BORDA;
+      }
+      if ((j==0) || (j==tam_tabuleiro+1)) {
+        (*tabuleiro[i])[j] = BORDA;
+      }
+    }
+  }
+  
   // Contamos as jogadas nesta variável.
   int qtd_jogadas = 0;
   // O Reversi começa sempre pelas peças pretas.
   char jogador = PRETO;
   // Mostramos o tabuleiro na tela antes de começar o jogo.
-  mostra(jogador, qtd_jogadas, tabuleiro);
+  // mostra(jogador, qtd_jogadas, tabuleiro);
   // Executa os turnos enquanto for possível. Esse é o *loop*
   // principal deste *script*.
   while (true) {
     // Planeja uma jogada (aqui será chamado o procedimento
     // *minimax*).
     Posicao *jogada;
+
     jogada = planeja(jogador, tabuleiro, nivel);
-    // Executa a jogada.    
-    executa(jogada, jogador, tabuleiro);
-    // Mostra na tela o estado do tabuleiro atual
-    mostra(jogador, qtd_jogadas, tabuleiro);
+
+    if ((jogada->linha != -1) && (jogada->coluna != -1)) {
+      // Executa a jogada.    
+      executa(jogada, jogador, tabuleiro);
+      // Mostra na tela o estado do tabuleiro atual
+      mostra(jogador, jogada, qtd_jogadas, tabuleiro);
+    }
     // Troca de jogador (ou continua no mesmo se o outro passar a
     // vez).
     jogador = proximo(jogador, tabuleiro);
@@ -143,6 +162,7 @@ void joga(int nivel) {
     // não há mais movimentos possíveis e, portanto, fim de jogo.
     if (jogador == '9') {
       // Verifica quem ganhou e mostra o resultado final do jogo.
+      /*
       int dif_preto = pontos(PRETO, tabuleiro);
       int dif_branco = pontos(BRANCO, tabuleiro);
       cout << "O jogo terminou após " << qtd_jogadas+1 << " jogadas! ";
@@ -150,11 +170,13 @@ void joga(int nivel) {
         cout << "Jogador PRETO ganhou com " << dif_preto << " peças a mais.";
       else if (dif_branco > dif_preto)
         cout << "Jogador BRANCO ganhou com " << dif_branco << " peças a mais.";      cout << endl;
+      */
       break;
     }
     // Apenas atualizamos o contador de jogadas.
     qtd_jogadas++;
   }
+
 }
 
 //// Planejamento /////////////////////////////////////////////////////////////
@@ -186,19 +208,16 @@ void joga(int nivel) {
 // Wikipedia.
 
 // Função auxiliar, que chama a função recursiva *minimax()*.
-Posicao *planeja(char jogador, string tabuleiro[], int nivel) {
+Posicao *planeja(char jogador, string **tabuleiro, int nivel) {
   static GanhoPos aux;
-  string copia_tabuleiro[10];
-  for (int j=0; j<10; j++) {
-    copia_tabuleiro[j] = tabuleiro[j];
-  }
-  aux = minimax(jogador, copia_tabuleiro, nivel);
+
+  aux = minimax(jogador, tabuleiro, nivel);
   return aux.pos;
 }
 
 // Planeja a próxima jogada de determinado jogador através do
 // algoritmo *minimax*.
-GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
+GanhoPos minimax(char jogador, string **tabuleiro, int nivel) {
   vector<Posicao *> jogaveis;
   vector<GanhoPos> ganhos;
 
@@ -209,7 +228,10 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
   if (nivel == 0) {
     GanhoPos aux;
     aux.ganho = pontos(jogador, tabuleiro);
-
+    Posicao *posNula = new Posicao;
+    posNula->linha = -1;
+    posNula->coluna = -1;
+    aux.pos = posNula;
     return aux;
   }
 
@@ -238,14 +260,26 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
       if (ganho < 0) {
         GanhoPos aux;
         aux.ganho = -999999;
+        Posicao *posNula = new Posicao;
+        posNula->linha = -1;
+        posNula->coluna = -1;
+        aux.pos = posNula;
         return aux;
       } else if (ganho > 0) {
         GanhoPos aux;
         aux.ganho = 999999;
+        Posicao *posNula = new Posicao;
+        posNula->linha = -1;
+        posNula->coluna = -1;
+        aux.pos = posNula;
         return aux;
       } else {
         GanhoPos aux;
         aux.ganho = ganho;
+        Posicao *posNula = new Posicao;
+        posNula->linha = -1;
+        posNula->coluna = -1;
+        aux.pos = posNula;
         return aux;
       }
     }
@@ -255,6 +289,10 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
     GanhoPos aux;
     int ganho = -minimax('0' + oponente, tabuleiro, nivel-1).ganho;
     aux.ganho = ganho;
+    Posicao *posNula = new Posicao;
+    posNula->linha = -1;
+    posNula->coluna = -1;
+    aux.pos = posNula;
     return aux;
   }
 
@@ -265,12 +303,16 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
   for (int i=0; i<jogaveis.size(); i++) {
     GanhoPos aux;
     int oponente = (jogador + 1) % 2;
-    string copia_tabuleiro[10];
+    
+    int tam_tabuleiro = (*tabuleiro[0]).size();
 
-    for (int j=0; j<10; j++) {
-      string foo(tabuleiro[j]);
-      copia_tabuleiro[j] = foo;
+    string **copia_tabuleiro = new string*[tam_tabuleiro];
+
+    for (int j=0; j<tam_tabuleiro; j++) {
+      copia_tabuleiro[j] = new string[tam_tabuleiro];
+      *copia_tabuleiro[j] = *tabuleiro[j];
     }
+
     int ganho = -minimax('0' + oponente,
                          executa(jogaveis.at(i), jogador, copia_tabuleiro),
                          nivel-1).ganho;
@@ -283,7 +325,7 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
 
   // Encontramos o maior (máximo).
   GanhoPos maior;
-  maior.ganho = -9999;
+  maior.ganho = -9999999;
   for (int i=ganhos.size()-1; i>=0; i--) {
     if (ganhos.at(i).ganho > maior.ganho) {
       maior.ganho = ganhos.at(i).ganho;
@@ -293,12 +335,13 @@ GanhoPos minimax(char jogador, string tabuleiro[], int nivel) {
 
   // Retornamos o melhor valor possível de todas as jogadas do nível
   // atual até 0.
+
   return maior;
 }
 
 // Calcula a pontuação do jogador baseando-se em seu total de peças
 // menos as peças do oponente.
-int pontos(char jogador, string tabuleiro[]) {
+int pontos(char jogador, string **tabuleiro) {
   // Encontramos a quantidade de peças do jogador e seu oponente,
   // armazenando nessas variáveis.
   int pontos_jogador = 0;
@@ -312,7 +355,7 @@ int pontos(char jogador, string tabuleiro[]) {
   // quando encontramos uma peça do jogador ou do oponente (0 ou 1).
   for (int i=0; i<validas.size(); i++) {
     Posicao *pos = validas.at(i);
-    char peca = tabuleiro[pos->linha][pos->coluna];
+    char peca = (*tabuleiro[pos->linha])[pos->coluna];
 
     if (peca == jogador) {
       pontos_jogador++;
@@ -333,17 +376,17 @@ int pontos(char jogador, string tabuleiro[]) {
 // jogo*.
 
 // Retorna as casas válidas do tabuleiro (sem as bordas).
-vector<Posicao *> pos_validas(string tabuleiro[]) {
+vector<Posicao *> pos_validas(string **tabuleiro) {
   vector<Posicao *> v;
 
   // Percorremos todo o tabuleiro e consideramos apenas as posições
   // que tenham peças ou que sejam vazias. Desconsideramos assim as
   // bordas.
-  for (int i=0; i<tabuleiro[0].length(); i++) {
-    for (int j=0; j<tabuleiro[0].length(); j++) {
-      if ((tabuleiro[i][j] == VAZIO) || 
-          (tabuleiro[i][j] == PRETO) || 
-          (tabuleiro[i][j] == BRANCO)) {
+  for (int i=0; i<(*tabuleiro[0]).length(); i++) {
+    for (int j=0; j<(*tabuleiro[0]).length(); j++) {
+      if (((*tabuleiro[i])[j] == VAZIO) || 
+          ((*tabuleiro[i])[j] == PRETO) || 
+          ((*tabuleiro[i])[j] == BRANCO)) {
         Posicao *pos = new Posicao;
         pos->linha = i;
         pos->coluna = j;
@@ -356,7 +399,7 @@ vector<Posicao *> pos_validas(string tabuleiro[]) {
 }
 
 // Retorna as posições 'jogáveis'.
-vector<Posicao *> pos_jogaveis(char jogador, string tabuleiro[]) {
+vector<Posicao *> pos_jogaveis(char jogador, string **tabuleiro) {
   vector<Posicao *> v;
   vector<Posicao *> validas;
 
@@ -372,6 +415,7 @@ vector<Posicao *> pos_jogaveis(char jogador, string tabuleiro[]) {
   for (int i=0; i<validas.size(); i++) {
     Posicao *pos = validas.at(i);
     pos_valida(pos, jogador, tabuleiro);
+
     if (pos_valida(pos, jogador, tabuleiro)) {
       v.push_back(pos);
     }
@@ -382,27 +426,30 @@ vector<Posicao *> pos_jogaveis(char jogador, string tabuleiro[]) {
 
 // Testa se a posição é válida ou não. O jogador só pode jogar em uma
 // posição que forme um traçado válido!
-bool pos_valida(Posicao *pos, char jogador, string tabuleiro[]) {
-    // Para cada direção a partir da posição atual, procuramos uma
-    // posição para jogar que forme um 'traçado'. Somente podemos jogar
-    // nessa posição se ela estiver vazia, portanto, também fazemos
-    // essa checagem.
+bool pos_valida(Posicao *pos, char jogador, string **tabuleiro) {
+  // Para cada direção a partir da posição atual, procuramos uma
+  // posição para jogar que forme um 'traçado'. Somente podemos jogar
+  // nessa posição se ela estiver vazia, portanto, também fazemos
+  // essa checagem.
+  int tam_tabuleiro = (*tabuleiro[0]).size()-2;
 
-    for (int i=0; i<8; i++) {
-      Posicao *pos_v = pos_jogavel(pos, jogador, tabuleiro, DIRS[i]);
-      if (tabuleiro[pos->linha][pos->coluna] == VAZIO) {
-        if (pos_v->linha != 42) {
-          return true;
-        }
+  for (int i=0; i<tam_tabuleiro; i++) {
+    Posicao *pos_v = pos_jogavel(pos, jogador, tabuleiro, DIRS[i]);
+    
+    if ((*tabuleiro[pos->linha])[pos->coluna] == VAZIO) {
+      
+      if (pos_v->linha != 42) {
+        return true;
       }
     }
+  }
   
   return false;
 }
 
 // Retorna uma posição onde podemos jogar a peça (há um traçado até
 // ela) ou *None* caso contrário.
-Posicao *pos_jogavel(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
+Posicao *pos_jogavel(Posicao *pos, char jogador, string **tabuleiro, int d[]) {
   Posicao *jogavel = new Posicao;
   int oponente = (jogador + 1) % 2;
 
@@ -413,7 +460,9 @@ Posicao *pos_jogavel(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
   // Se a próxima posição a partir da atual é uma de nossas peças,
   // ela não é uma posição válida para jogarmos. Apenas posições
   // vizinhas que tenham uma peça oponente nos interessam.
-  if (tabuleiro[jogavel->linha][jogavel->coluna] == jogador) {
+  //cout << jogavel->linha << "," << jogavel->coluna << endl;
+  if ((*tabuleiro[jogavel->linha])[jogavel->coluna] == jogador) {
+    // Usamos 42 como marcador ;-)
     jogavel->linha = 42;
     jogavel->coluna = 42;
     return jogavel;
@@ -421,15 +470,15 @@ Posicao *pos_jogavel(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
 
   // Vamos seguindo as posições onde há oponentes, a última delas é a
   // válida!
-  while (tabuleiro[jogavel->linha][jogavel->coluna] == '0' + oponente) {
+  while ((*tabuleiro[jogavel->linha])[jogavel->coluna] == '0' + oponente) {
     jogavel->linha += d[0];
     jogavel->coluna += d[1];
   }
 
   // Encontramos a posição válida em *jogavel*! Porém, se essa
   // posição for uma borda, não poderemos jogar.
-  if ((tabuleiro[jogavel->linha][jogavel->coluna] == BORDA) ||
-      (tabuleiro[jogavel->linha][jogavel->coluna] == VAZIO)) {
+  if (((*tabuleiro[jogavel->linha])[jogavel->coluna] == BORDA) ||
+      ((*tabuleiro[jogavel->linha])[jogavel->coluna] == VAZIO)) {
     jogavel->linha = 42;
     jogavel->coluna = 42;
     return jogavel;
@@ -447,13 +496,14 @@ Posicao *pos_jogavel(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
 // *inverte()*.
 
 // Executa a jogada na posição especificada.
-string *executa(Posicao *pos, char jogador, string *tabuleiro) {
+string **executa(Posicao *pos, char jogador, string **tabuleiro) {
   // Colocamos a peça da jogada atual no tabuleiro.
-  tabuleiro[pos->linha][pos->coluna] = jogador;
+  (*tabuleiro[pos->linha])[pos->coluna] = jogador;
 
   // Atualizamos todas as direções possíveis a partir dessa peça,
   // virando as peças adversárias.
-  for (int i=0; i<8; i++) {
+  int tam_tabuleiro = (*tabuleiro[0]).size() - 2;
+  for (int i=0; i<tam_tabuleiro; i++) {
     inverte(pos, jogador, tabuleiro, DIRS[i]);
   }
 
@@ -467,7 +517,7 @@ string *executa(Posicao *pos, char jogador, string *tabuleiro) {
 }
 
 // Inverte todas as peças adversárias em um determinada direção.
-void inverte(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
+void inverte(Posicao *pos, char jogador, string **tabuleiro, int d[]) {
   // Usamos a mesma função que utilizamos anteriormente para
   // encontrar uma posição jogável, mas agora a usamos para encontrar
   // o final do 'traçado'.
@@ -488,7 +538,7 @@ void inverte(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
 
   while ((pos_tracado->linha != pos_final->linha) ||
          (pos_tracado->coluna != pos_final->coluna)) {
-    tabuleiro[pos_tracado->linha][pos_tracado->coluna] = jogador;
+    (*tabuleiro[pos_tracado->linha])[pos_tracado->coluna] = jogador;
     pos_tracado->linha += d[0];
     pos_tracado->coluna += d[1];
   }
@@ -501,8 +551,8 @@ void inverte(Posicao *pos, char jogador, string tabuleiro[], int d[]) {
 // puder se mover. Se houver um jogador livre para jogar, ele irá
 // jogar, caso contrário, retorna None sinalizando que o jogo
 // terminou.
-char proximo(char jogador, string tabuleiro[]) {
-  int oponente = (jogador + 1) %2;
+char proximo(char jogador, string **tabuleiro) {
+  int oponente = (jogador + 1) % 2;
   vector<Posicao *> validas = pos_validas(tabuleiro);
 
   for (int i=0; i<validas.size(); i++) {
@@ -525,22 +575,37 @@ char proximo(char jogador, string tabuleiro[]) {
 
 // Mostra na tela o número do turno atual, o jogador e sua jogada,
 // formatadas de uma maneira 'amigável'.
-void mostra(char jogador, int qtd_jogadas, string tabuleiro[]) {
+void mostra(char jogador, Posicao *jda, int qtd_jogadas, string **tabuleiro) {
   string s = "";
-  for (int i=1; i<9; i++) {
-    s += tabuleiro[i].substr(1, 8) + "\n";
+  int tam_tabuleiro = (*tabuleiro[0]).size();
+  for (int i=1; i<tam_tabuleiro-1; i++) {
+    s += (*tabuleiro[i]).substr(1, tam_tabuleiro-2) + "\n";
   }
-  string cor = "PRETO";
+  string cor = "black";
   if (jogador == '1')
-    cor = "BRANCO";
+    cor = "white";
 
-  cout << "#" << qtd_jogadas << " Jogador: " << cor << ". Jogada:\n\n" << s;
-  cout << endl;
+  cout << cor << 
+    " " << 
+    tam_tabuleiro-2-jda->linha << 
+    " " << 
+    jda->coluna-1 << endl; 
+
+  // Descomente essas linhas para mostrar também o tabuleiro
+  // cout << "#" << qtd_jogadas << " Jogador: " << cor << ". Jogada:\n\n" << s;
+  // cout << endl;
 }
 
 // Fazemos uma chamada padrão à função joga, como exemplo. 
 int main() {
-  joga(3);
+  // Lemos o tamanho do tabuleiro e a quantidade máxima de níveis de um
+  // arquivo de configuração.
+  ifstream conf_file("reversi.conf");
+  int nivel, tam_tabuleiro;
+  conf_file >> tam_tabuleiro;
+  conf_file >> nivel;
+
+  joga(nivel, tam_tabuleiro);
 
   return 0;
 }

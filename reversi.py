@@ -25,9 +25,9 @@
 # Portanto, para realizar um jogo, basta executar, em linha de
 # comando, a seguinte chamada:
 #
-#     $ python reversi.py > jogadas.txt
+#     $ python reversi.py > game.txt
 #
-# Todas as jogadas estarão no arquivo jogadas.txt
+# Todas as jogadas estarão no arquivo game.txt
 
 ### Bibliotecas necessárias
 
@@ -75,51 +75,59 @@ DIRS = [(-1, -1), (-1, 0), (-1, 1),
         ( 0, -1),          ( 0, 1),
         ( 1, -1), ( 1, 0), ( 1, 1)]
 
-def novo_tabuleiro():
+def novo_tabuleiro(tam_tabuleiro):
     """
     Cria um tabuleiro inicial, com as primeiras peças no centro.
     """
     # Usamos a função *str.split()* para separar cada caractere da
     # string, formando uma lista de listas de caracteres (para
     # permitir edição posterior).
-    return map(str.split, ["* * * * * * * * * *",
-                           "* - - - - - - - - *",
-                           "* - - - - - - - - *",
-                           "* - - - - - - - - *",
-                           "* - - - 1 0 - - - *",
-                           "* - - - 0 1 - - - *",
-                           "* - - - - - - - - *",
-                           "* - - - - - - - - *",
-                           "* - - - - - - - - *",
-                           "* * * * * * * * * *"])
+    tab = [('- '*(tam_tabuleiro+2))[:-1] for i in xrange(tam_tabuleiro+2)]
+    tab = map(str.split, tab)
+
+    for i in xrange(tam_tabuleiro+2):
+        for j in xrange(tam_tabuleiro+2):
+            if (i == 0) or (i == (tam_tabuleiro+1)):
+                tab[i][j] = BORDA
+            if (j == 0) or (j == (tam_tabuleiro+1)):
+                tab[i][j] = BORDA
+
+    tab[tam_tabuleiro/2][tam_tabuleiro/2] = BRANCO;
+    tab[tam_tabuleiro/2+1][tam_tabuleiro/2+1] = BRANCO;
+    tab[tam_tabuleiro/2+1][tam_tabuleiro/2] = PRETO;
+    tab[tam_tabuleiro/2][tam_tabuleiro/2+1] = PRETO;
+
+    return tab
 
 ### Função principal
 
-def joga(nivel):
+def joga(nivel, tam_tabuleiro):
     """
     Função principal que executa todos os turnos de um jogo,
     terminando quando não há mais possibilidade de movimento para os
     jogadores.
     """
+    
     # Iniciamos um novo tabuleiro.
-    tabuleiro = novo_tabuleiro()
+    tabuleiro = novo_tabuleiro(tam_tabuleiro)
 
     # Contamos as jogadas nesta variável.
     qtd_jogadas = 0
     # O Reversi começa sempre pelas peças pretas.
     jogador = PRETO
     # Mostramos o tabuleiro na tela antes de começar o jogo.
-    mostra(jogador, qtd_jogadas-1, tabuleiro)
+    #mostra(jogador, qtd_jogadas-1, tabuleiro)
     # Executa os turnos enquanto for possível. Esse é o *loop*
     # principal deste *script*.
     while True:
         # Planeja uma jogada (aqui será chamado o procedimento
         # *minimax*).
         ganho, jogada = planeja(jogador, tabuleiro, nivel)
-        # Executa a jogada.
-        executa(jogada, jogador, tabuleiro)
-        # Mostra na tela o estado do tabuleiro atual
-        mostra(jogador, qtd_jogadas, tabuleiro)
+        if jogada != (-1, -1):
+            # Executa a jogada.
+            executa(jogada, jogador, tabuleiro)
+            # Mostra na tela o estado do tabuleiro atual
+            mostra(jogador, jogada, qtd_jogadas, tabuleiro)
         # Troca de jogador (ou continua no mesmo se o outro passar a
         # vez).
         jogador = proximo(jogador, tabuleiro)
@@ -138,7 +146,7 @@ def joga(nivel):
                 res = 'Jogador BRANCO ganhou com %s peças a mais.' % dif_branco
 
             # Mostra o resultado final do jogo.
-            print "O jogo terminou após %s jogadas! %s" % (qtd_jogadas+1, res)
+            #print "O jogo terminou após %s jogadas! %s" % (qtd_jogadas+1, res)
             break
         # Apenas atualizamos o contador de jogadas.
         qtd_jogadas += 1
@@ -175,7 +183,8 @@ def planeja(jogador, tabuleiro, nivel):
     """
     Função auxiliar, que chama a função recursiva *minimax()*.
     """
-    return minimax(jogador, copy.deepcopy(tabuleiro), nivel)
+    foo = minimax(jogador, tabuleiro, nivel)
+    return foo
 
 def minimax(jogador, tabuleiro, nivel):
     """
@@ -188,7 +197,7 @@ def minimax(jogador, tabuleiro, nivel):
     # em si (sua posição no tabuleiro).
     if nivel == 0:
         p = pontos(jogador, tabuleiro)
-        return (p, None)
+        return (p, (-1, -1))
 
     # Vamos executar e analisar todas as jogadas possíveis desse
     # nível. Portanto, encontramos todas as posições possíveis de
@@ -207,16 +216,16 @@ def minimax(jogador, tabuleiro, nivel):
             # caso não há diferença nos pontos.
             ganho = pontos(jogador, tabuleiro)
             if ganho < 0:
-                return (-999999, None)
+                return (-999999, (-1, -1))
             elif ganho > 0:
-                return (999999, None)
+                return (999999, (-1, -1))
             else:
-                return (ganho, None)
+                return (ganho, (-1, -1))
         # Caso contrário, passamos a vez para o oponente, chamando
         # minimax para ele.
         return (-minimax(str(oponente),
                          tabuleiro,
-                         nivel - 1)[0], None)
+                         nivel-1)[0], (-1, -1))
 
     # Escolhemos o melhor valor possível das jogadas, ou seja, o
     # melhor para o jogador é o menor ganho do oponente, como
@@ -226,10 +235,10 @@ def minimax(jogador, tabuleiro, nivel):
                         executa(pos, jogador, copy.deepcopy(tabuleiro)),
                         nivel - 1)[0],
                pos) for pos in jogaveis]
-
+    foo =  max(ganhos)
     # Retornamos o melhor valor possível de todas as jogadas do nível
     # atual até 0.
-    return max(ganhos)
+    return foo
 
 def pontos(jogador, tabuleiro):
     """
@@ -410,20 +419,30 @@ def proximo(jogador, tabuleiro):
 
 ### Funções Auxiliares
 
-def mostra(jogador, qtd_jogadas, tabuleiro):
+def mostra(jogador, jogada, qtd_jogadas, tabuleiro):
     """
     Mostra na tela o número do turno atual, o jogador e sua jogada,
     formatadas de uma maneira 'amigável'.
     """
     s = ""
-    for linha in range(1, 9):
-        s += "%s\n" % " ".join(tabuleiro[linha][1:9])
+    for linha in range(1, len(tabuleiro)-1):
+        s += "%s\n" % " ".join(tabuleiro[linha][1:len(tabuleiro)-1])
         
-    cor = 'PRETO'
+    cor = 'black'
     if jogador is '1':
-        cor = 'BRANCO'
+        cor = 'white'
         
-    print "#%s Jogador: %s. Jogada:\n\n%s" % (qtd_jogadas+1, cor, s)
+    print '%s %s %s' % (cor, len(tabuleiro)-2-jogada[0], jogada[1]-1)
+    
+    # Descomente essa linha para mostrar também o tabuleiro
+    # print s
 
-# Fazemos uma chamada padrão à função joga, como exemplo. 
-joga(3)
+if __name__ == "__main__":
+    # Lemos o arquivo de configuração
+    conf = open('reversi.conf')
+    linha = conf.readline().split(' ')
+    tam_tabuleiro = int(linha[0])
+    qtd_niveis = int(linha[1])
+
+    # Fazemos uma chamada padrão à função joga, como exemplo. 
+    joga(qtd_niveis, tam_tabuleiro)

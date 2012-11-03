@@ -2,14 +2,19 @@ Implementação do jogo de tabuleiro Reversi em Python e C++.
 
 Para executar (em Python):
 
-    python reversi.py > jogadas.txt
+    python reversi.py > game.txt
 
 E em C++:
 
     g++ -o reversi reversi.cpp
-    ./reversi > jogadas.txt
+    ./reversi > game.txt
 
-O arquivo jogadas.txt conterá todo o histórico de jogadas realizadas.
+O arquivo game.txt conterá todo o histórico de jogadas realizadas.
+
+Para configurar para um tamanho específico de tabuleiro e número máximo
+de níveis da árvore minmax, edite o arquivo reversi.conf:
+
+    <num de linhas> <nível máximo>
 
 No diretório docs/ há o código comentado da implementação em Python e o código
 em C++ está também comentado, a exemplo do código em Python.
