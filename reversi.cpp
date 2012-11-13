@@ -433,7 +433,7 @@ bool pos_valida(Posicao *pos, char jogador, string **tabuleiro) {
   // essa checagem.
   int tam_tabuleiro = (*tabuleiro[0]).size()-2;
 
-  for (int i=0; i<tam_tabuleiro; i++) {
+  for (int i=0; i<8; i++) {
     Posicao *pos_v = pos_jogavel(pos, jogador, tabuleiro, DIRS[i]);
     
     if ((*tabuleiro[pos->linha])[pos->coluna] == VAZIO) {
@@ -503,7 +503,7 @@ string **executa(Posicao *pos, char jogador, string **tabuleiro) {
   // Atualizamos todas as direções possíveis a partir dessa peça,
   // virando as peças adversárias.
   int tam_tabuleiro = (*tabuleiro[0]).size() - 2;
-  for (int i=0; i<tam_tabuleiro; i++) {
+  for (int i=0; i<8; i++) {
     inverte(pos, jogador, tabuleiro, DIRS[i]);
   }
 
